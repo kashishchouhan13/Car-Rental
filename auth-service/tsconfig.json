@@ -1,0 +1,14 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+   "compilerOptions": {
+    "target": "ES2020",                // modern JS output
+    "module": "CommonJS",              // Node.js compatible
+    "rootDir": "src",                   // input folder
+    "outDir": "dist",                   // compiled JS output
+    "esModuleInterop": true,            // allow import x from 'module'
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,                     // strict TS checks
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}

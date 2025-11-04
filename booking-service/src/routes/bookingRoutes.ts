@@ -1,0 +1,29 @@
+import express from "express";
+import { CreateBookingCommand } from "../command/CreateBookingCommand";
+import { CreateBookingHandler } from "../command/CreateBookingHandler";
+import { Booking } from "../models/Booking";
+
+const router = express.Router();
+
+router.post("/", async (req, res) => {
+  try {
+    const { userId, carId, startDate, endDate ,amount } = req.body;
+    const command = new CreateBookingCommand(userId, carId, startDate, endDate, amount);
+    const handler = new CreateBookingHandler();
+    const booking = await handler.execute(command);
+    res.json({ success: true, booking });
+  } catch (err: any) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+router.get("/all", async (req, res) => {
+  try {
+    const bookings = await Booking.find(); // fetch from MongoDB
+    res.json({ success: true, bookings });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+export default router;
