@@ -4,13 +4,16 @@ import { connectDB } from "./db";
 import commandRoutes from "./routes/commandRoutes";
 import queryRoutes from "./routes/queryRoutes";
 import { startConsumers } from "./rabbitmq/consumer";
+import cors from "cors";
 
 dotenv.config();
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/car/command", commandRoutes);
 app.use("/api/car/query", queryRoutes);
+app.use("/uploads", express.static("uploads"));
 
 
 const PORT = process.env.PORT || 5002;

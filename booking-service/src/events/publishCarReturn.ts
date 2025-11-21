@@ -1,7 +1,8 @@
 import amqp from "amqplib";
+import { connectRabbitMQ } from "../rabbitmq/connect";
 
 export const publishCarReturned = async (carId: string) => {
-  const connection = await amqp.connect(process.env.RABBITMQ_URL!);
+  const connection = await connectRabbitMQ();
   const channel = await connection.createChannel();
 
   const queue = "car_returned";

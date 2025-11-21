@@ -14,23 +14,26 @@ export class AddCarHandler {
     }
   
     const car = new Car({
+      name: command.name,
       model: command.model,
-      brand: command.brand,
       pricePerDay: command.pricePerDay,
+      imageUrl: command.imageUrl
     });
 
     await car.save();
 
     const event = new CarCreatedEvent(
       car._id.toString(),
+      car.name,
       car.model,
-      car.brand,
       car.pricePerDay,
-      car.available
+      car.available,
+      car.imageUrl
     );
     await publishEvent("car_exchange", "car.created", event);
 
     return car;
   }
 }
+
 

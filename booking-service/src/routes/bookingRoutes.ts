@@ -25,5 +25,23 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch all bookings for this user
+    const bookings = await Booking.find({ userId });
+
+    return res.json({
+      success: true,
+      data: bookings,
+    });
+
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ success: false, message: err.message });
+  }
+});
 
 export default router;

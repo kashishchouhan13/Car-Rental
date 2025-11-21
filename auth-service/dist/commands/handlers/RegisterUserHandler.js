@@ -8,12 +8,12 @@ const User_1 = require("../../models/User");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 class RegisterUserHandler {
     async execute(command) {
-        const { name, email, password, role } = command;
+        const { name, email, password } = command;
         const exists = await User_1.User.findOne({ email });
         if (exists)
             throw new Error("Email already registered");
         const hashed = await bcryptjs_1.default.hash(password, 10);
-        const user = await User_1.User.create({ name, email, password: hashed, role });
+        const user = await User_1.User.create({ name, email, password: hashed, role: "user" });
         return user;
     }
 }

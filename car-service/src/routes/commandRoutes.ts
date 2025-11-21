@@ -9,20 +9,59 @@ import { DeleteCarCommand } from "../commands/deleteCar/DeleteCarCommand";
 import { DeleteCarHandler } from "../commands/deleteCar/DeleteCarHandler";
 
 import { requireAdmin } from "../middleware/adminMiddleware";
+//import { upload } from "../middleware/upload";
 
 const router = express.Router();
+import multer from "multer";
+import path from "path";
+
+// Storage config
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  },
+});
+
+const carImageUpload = multer({ storage });
+
+router.post(
+  "/upload-images",
+  requireAdmin,
+  carImageUpload.array("images", 5), 
+  (req, res) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0)
+      return res
+        .status(400)
+        .json({ success: false, message: "No files uploaded" });
+
+    const urls = files.map((file) => `/uploads/${file.filename}`);
+    return res.json({ success: true, urls });
+  }
+);
 
 router.post("/add", requireAdmin, async (req, res) => {
   try {
-    const { model, brand, pricePerDay } = req.body;
-    const command = new AddCarCommand(model, brand, pricePerDay);
+    const { name, model, pricePerDay, imageUrl } = req.body;
+
+    if (!Array.isArray(imageUrl)) {
+      return res.status(400).json({ success: false, message: "imageUrl must be an array" });
+    }
+
+    const command = new AddCarCommand(name, model, pricePerDay, imageUrl);
     const handler = new AddCarHandler();
-    const car = await handler.execute(command , (req as any).user);
-    res.status(201).json({ success: true, data: car });
+
+    const car = await handler.execute(command, (req as any).user);
+
+    return res.status(201).json({ success: true, data: car });
   } catch (err: any) {
-    res.status(400).json({ success: false, message: err.message });
+    return res.status(400).json({ success: false, message: err.message });
   }
 });
+
 
 router.put("/update/:id", async (req, res) => {
   try {

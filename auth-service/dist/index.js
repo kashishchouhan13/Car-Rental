@@ -31,7 +31,7 @@ app.use((0, cors_1.default)({
     credentials: true,
 }));
 // Needed for OPTIONS preflight in Docker
-app.use(cors());
+app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 (async () => {
     await (0, db_1.connectDB)(process.env.MONGO_URI);
