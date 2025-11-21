@@ -22,11 +22,9 @@ export const startConsumers = async () => {
   const exchange = "payments_exchange";
   await channel.assertExchange(exchange, "topic", { durable: true });
 
-
   const queue = "car_payment_queue";
   await channel.assertQueue(queue, { durable: true });
   await channel.bindQueue(queue, exchange, "payment.success");
-
 
 const returnedQueue = "car_returned";
 await channel.assertQueue(returnedQueue, { durable: true });

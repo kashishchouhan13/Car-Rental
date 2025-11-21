@@ -18,7 +18,7 @@ export class LoginUserHandler {
 
 await redisClient.set(
   `user:${user._id}`,
-  JSON.stringify({ token, role: user.role }),
+  JSON.stringify({ role: user.role }),
   "EX",
   3600
 );

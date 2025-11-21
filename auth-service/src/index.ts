@@ -33,9 +33,6 @@ app.use(
   })
 );
 
-// Needed for OPTIONS preflight in Docker
-app.use(cors());
-
 app.use(express.json());
 
 (async () => {
