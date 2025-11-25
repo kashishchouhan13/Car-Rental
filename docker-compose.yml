@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: always  
+
+  auth-service:                  
+    build: ./auth-service 
+    container_name: auth_service
+    ports:
+      - "5001:5001"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/authDB
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - mongo
+      - redis
+    restart: always
+    
+  car-service:
+    build: ./car-service
+    container_name: car_service
+    ports:
+      - "5002:5002"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/carDB
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - mongo
+      - rabbitmq
+      - redis
+    restart: always
+    volumes:
+      - ./car-service/uploads:/app/uploads
+
+  booking-service:
+    build: ./booking-service
+    container_name: booking-service
+    command: sh -c "node dist/index.js & node dist/returnCarWorker.js"
+    ports:
+      - "5003:5003"
+    environment:
+       PORT: 5003
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+       MONGO_URI: mongodb://mongo:27017/bookDB
+       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - mongo
+      - redis
+      - rabbitmq
+    restart: always
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "5004:5004"
+    env_file:
+      - ./payment-service/.env 
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      - rabbitmq
