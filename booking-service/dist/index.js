@@ -31,7 +31,6 @@ require("./returnCarWorker");
     catch (err) {
         console.warn("Redis connect failed:", err);
     }
-    // start consumers — they handle RabbitMQ reconnect internally via connectRabbitMQ
     (0, CarCreatedConsumer_1.startCarConsumer)().catch(err => console.error("❌ startCarConsumer failed:", err));
     (0, paymentSuccessConsumer_1.startBookingConsumer)().catch(err => console.error("❌ startBookingConsumer failed:", err));
     const PORT = Number(process.env.PORT || 5003);

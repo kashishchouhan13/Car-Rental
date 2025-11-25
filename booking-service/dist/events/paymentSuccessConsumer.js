@@ -29,15 +29,10 @@ const startBookingConsumer = async () => {
                     paymentId: event.paymentId,
                 }, { new: true });
                 if (booking) {
-                    console.log("🎯 DEBUG booking:", booking);
-                    console.log("startDate:", booking.startDate);
-                    console.log("endDate:", booking.endDate);
                     const endTime = new Date(booking.endDate).getTime();
                     const now = Date.now();
-                    console.log("endTime(ms):", endTime);
-                    console.log("now(ms):", now);
-                    const delay = Math.max(0, endTime - now);
-                    console.log("🧮 Calculated delay:", delay);
+                    const delay = Math.max(0, endTime - now); // ⭐ Correct delay
+                    console.log("⏳ Scheduling return job for car:", booking.carId, "in", delay, "ms");
                     await returnCarQueue_1.returnCarQueue.add("return-car", { carId: booking.carId.toString() }, { delay });
                 }
             }

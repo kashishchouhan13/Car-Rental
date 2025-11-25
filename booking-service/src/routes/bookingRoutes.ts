@@ -1,21 +1,54 @@
 import express from "express";
+import axios from "axios";
 import { CreateBookingCommand } from "../command/CreateBookingCommand";
 import { CreateBookingHandler } from "../command/CreateBookingHandler";
 import { Booking } from "../models/Booking";
+
+interface StripeSessionResponse {
+  url: string;
+}
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, carId, startDate, endDate ,amount } = req.body;
-    const command = new CreateBookingCommand(userId, carId, startDate, endDate, amount);
+    const { userId, carId, startDate, endDate, amount } = req.body;
+
+    console.log("📥 Received Booking Request:", req.body);
+
+    // 1️⃣ Create booking
     const handler = new CreateBookingHandler();
-    const booking = await handler.execute(command);
-    res.json({ success: true, booking });
+    const bookingResponse = await handler.execute(
+      new CreateBookingCommand(userId, carId, startDate, endDate, amount)
+    );
+
+    const booking = bookingResponse.booking;
+
+    // 2️⃣ Ask payment-service for Stripe URL
+    const stripeResponse = await axios.post<StripeSessionResponse>(
+      "http://host.docker.internal:5004/api/pay/checkout",
+      {
+        bookingId: booking._id,
+        amount,
+        carId: carId,
+      }
+    );
+
+    // 3️⃣ Return Stripe URL to frontend
+    return res.json({
+      success: true,
+      url: stripeResponse.data.url
+    });
+
   } catch (err: any) {
-    res.status(400).json({ success: false, message: err.message });
+    console.log("❌ Booking+Payment Error:", err.response?.data || err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 });
+
 
 router.get("/all", async (req, res) => {
   try {

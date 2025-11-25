@@ -1,12 +1,25 @@
+import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
+import cors from "cors";
+import paymentRoutes from "./routes/PaymentRoutes";
+import webhookRoute from "./webhook";
 
-import app from "./app";
-import { startBookingConsumer } from "./consumers/bookingConsumer";
 
-const PORT = process.env.PORT || 5002;
+const app = express();
 
-app.listen(PORT, async () => {
-  console.log(` Payment Service running on port ${PORT}`);
-  await startBookingConsumer();
-});
+// important: webhook must use raw body
+app.use(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  webhookRoute
+);
+
+// Normal JSON parser for other routes
+app.use(express.json());
+app.use(cors());
+
+// REST API
+app.use("/api/pay", paymentRoutes);
+
+app.listen(5004, () => console.log("Payment Service running on 5004"));

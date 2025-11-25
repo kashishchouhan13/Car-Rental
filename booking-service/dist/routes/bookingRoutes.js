@@ -4,20 +4,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const axios_1 = __importDefault(require("axios"));
 const CreateBookingCommand_1 = require("../command/CreateBookingCommand");
 const CreateBookingHandler_1 = require("../command/CreateBookingHandler");
 const Booking_1 = require("../models/Booking");
 const router = express_1.default.Router();
 router.post("/", async (req, res) => {
+    var _a;
     try {
         const { userId, carId, startDate, endDate, amount } = req.body;
-        const command = new CreateBookingCommand_1.CreateBookingCommand(userId, carId, startDate, endDate, amount);
+        console.log("📥 Received Booking Request:", req.body);
+        // 1️⃣ Create booking
         const handler = new CreateBookingHandler_1.CreateBookingHandler();
-        const booking = await handler.execute(command);
-        res.json({ success: true, booking });
+        const bookingResponse = await handler.execute(new CreateBookingCommand_1.CreateBookingCommand(userId, carId, startDate, endDate, amount));
+        const booking = bookingResponse.booking;
+        // 2️⃣ Ask payment-service for Stripe URL
+        const stripeResponse = await axios_1.default.post("http://host.docker.internal:5004/api/pay/checkout", {
+            bookingId: booking._id,
+            amount,
+            carId: carId,
+        });
+        // 3️⃣ Return Stripe URL to frontend
+        return res.json({
+            success: true,
+            url: stripeResponse.data.url
+        });
     }
     catch (err) {
-        res.status(400).json({ success: false, message: err.message });
+        console.log("❌ Booking+Payment Error:", ((_a = err.response) === null || _a === void 0 ? void 0 : _a.data) || err.message);
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 });
 router.get("/all", async (req, res) => {
