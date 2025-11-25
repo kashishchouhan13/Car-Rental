@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Booking = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const bookingSchema = new mongoose_1.default.Schema({
-    userId: { type: String, required: true }, // FIXED
-    carId: { type: String, required: true }, // FIXED
+    userId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true },
+    carId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     amount: { type: Number, required: true },

@@ -9,9 +9,7 @@ import { User } from "../models/User";
 import jwt from "jsonwebtoken";
 import { redisClient } from "../config/redis";
 
-// ------------------------
 // REGISTER
-// ------------------------
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -26,9 +24,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-// ------------------------
 // LOGIN
-// ------------------------
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -56,9 +52,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// ------------------------
 // GET ALL USERS (ADMIN)
-// ------------------------
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find().select("-password");
@@ -68,9 +62,17 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// ------------------------
+export const getUserById = async(req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.params.id).select("name email");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, user });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // UPDATE USER ROLE (ADMIN)
-// ------------------------
 export const updateUserRole = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
@@ -100,9 +102,7 @@ export const updateUserRole = async (req: Request, res: Response) => {
   }
 };
 
-// ------------------------
 // VERIFY TOKEN
-// ------------------------
 export const verifyToken = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ valid: false });
@@ -127,9 +127,7 @@ export const verifyToken = async (req: Request, res: Response) => {
   }
 };
 
-// ------------------------
 // LOGOUT
-// ------------------------
 export const logoutUser = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.json({ success: true });

@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
 });
 router.get("/all", async (req, res) => {
     try {
-        const bookings = await Booking_1.Booking.find(); // fetch from MongoDB
+        const bookings = await Booking_1.Booking.find();
         res.json({ success: true, bookings });
     }
     catch (err) {

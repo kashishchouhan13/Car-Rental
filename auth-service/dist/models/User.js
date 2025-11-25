@@ -40,5 +40,6 @@ const userSchema = new mongoose_1.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    isSuperAdmin: { type: Boolean, default: false },
 });
 exports.User = mongoose_1.default.model("User", userSchema);

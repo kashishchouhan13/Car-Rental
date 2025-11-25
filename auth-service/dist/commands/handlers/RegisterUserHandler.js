@@ -13,7 +13,9 @@ class RegisterUserHandler {
         if (exists)
             throw new Error("Email already registered");
         const hashed = await bcryptjs_1.default.hash(password, 10);
-        const user = await User_1.User.create({ name, email, password: hashed, role: "user" });
+        const isSuperAdmin = email === process.env.SUPER_ADMIN_EMAIL;
+        const user = await User_1.User.create({ name, email, password: hashed, role: isSuperAdmin ? "admin" : "user",
+            isSuperAdmin: isSuperAdmin, });
         return user;
     }
 }

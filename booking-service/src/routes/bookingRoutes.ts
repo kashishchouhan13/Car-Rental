@@ -19,12 +19,14 @@ router.post("/", async (req, res) => {
 
 router.get("/all", async (req, res) => {
   try {
-    const bookings = await Booking.find(); // fetch from MongoDB
+    const bookings = await Booking.find();
     res.json({ success: true, bookings });
+    
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;

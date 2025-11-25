@@ -21,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI!)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));
 
+  import "./returnCarWorker";
 (async () => {
   try {
     await redisClient.connect().catch(() => {});
@@ -28,7 +29,6 @@ mongoose.connect(process.env.MONGO_URI!)
     console.warn("Redis connect failed:", err);
   }
 
-  // start consumers — they handle RabbitMQ reconnect internally via connectRabbitMQ
   startCarConsumer().catch(err => console.error("❌ startCarConsumer failed:", err));
   startBookingConsumer().catch(err => console.error("❌ startBookingConsumer failed:", err));
 

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 export interface IBooking {
-  userId: string;
-  carId: string;
+  userId: mongoose.Types.ObjectId;
+  carId: mongoose.Types.ObjectId;
   startDate: Date;
   endDate: Date;
   amount: number;
@@ -12,11 +12,13 @@ export interface IBooking {
 
 const bookingSchema = new mongoose.Schema<IBooking>(
   {
-    userId: { type: String, required: true },   // FIXED
-    carId: { type: String, required: true },    // FIXED
+userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+carId: { type: mongoose.Schema.Types.ObjectId, required: true },
+
 
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+
     amount: { type: Number, required: true },
 
     status: {

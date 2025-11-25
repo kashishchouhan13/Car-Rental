@@ -18,7 +18,7 @@ class LoginUserHandler {
         if (!match)
             throw new Error("Invalid credentials");
         const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        await redis_1.redisClient.set(`user:${user._id}`, JSON.stringify({ token, role: user.role }), "EX", 3600);
+        await redis_1.redisClient.set(`user:${user._id}`, JSON.stringify({ role: user.role }), "EX", 3600);
         return { user, token };
     }
 }

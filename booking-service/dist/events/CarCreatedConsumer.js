@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startCarConsumer = void 0;
-// src/events/CarCreatedConsumer.ts
 const connect_1 = require("../rabbitmq/connect");
 const client_1 = require("../redis/client");
 const startCarConsumer = async () => {
