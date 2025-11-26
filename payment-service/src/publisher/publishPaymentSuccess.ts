@@ -8,6 +8,8 @@ export const publishPaymentSuccess = async (bookingData: any) => {
   await channel.assertExchange(exchange, "topic", { durable: true });
 
   channel.publish(exchange, "payment.success", Buffer.from(JSON.stringify(bookingData)));
+  
+  console.log("📤 Published payment sccess event", bookingData);
 
   await channel.close();
   await connection.close();

@@ -9,7 +9,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 // ----------------------
 router.post("/checkout", async (req, res) => {
   try {
-    const { amount, bookingId, userId ,carId} = req.body;
+    const { amount, bookingId,carId} = req.body;
 
     if (!amount || !bookingId) {
       return res.status(400).json({ success: false, message: "Missing data" });
@@ -23,6 +23,7 @@ router.post("/checkout", async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
+       expand: ["payment_intent"],
       line_items: [
         {
           price_data: {
@@ -43,9 +44,15 @@ router.post("/checkout", async (req, res) => {
 
       metadata: {
         bookingId,
-        userId,
         carId,
       },
+       payment_intent_data: {
+    setup_future_usage: "off_session",
+    metadata: {
+      bookingId,
+      carId,
+    },
+  },
     });
 
     res.json({ success: true, url: session.url });

@@ -10,5 +10,6 @@ const carSchema = new mongoose_1.default.Schema({
     model: { type: String, required: true },
     pricePerDay: { type: Number, required: true },
     available: { type: Boolean, default: true },
+    imageUrl: { type: [String], required: true },
 }, { timestamps: true });
 exports.Car = mongoose_1.default.model("Car", carSchema);

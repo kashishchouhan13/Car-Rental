@@ -13,9 +13,10 @@ class AddCarHandler {
             name: command.name,
             model: command.model,
             pricePerDay: command.pricePerDay,
+            imageUrl: command.imageUrl
         });
         await car.save();
-        const event = new CarCreatedEvent_1.CarCreatedEvent(car._id.toString(), car.name, car.model, car.pricePerDay, car.available);
+        const event = new CarCreatedEvent_1.CarCreatedEvent(car._id.toString(), car.name, car.model, car.pricePerDay, car.available, car.imageUrl);
         await (0, producer_1.publishEvent)("car_exchange", "car.created", event);
         return car;
     }

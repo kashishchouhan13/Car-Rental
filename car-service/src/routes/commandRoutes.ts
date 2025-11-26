@@ -63,11 +63,11 @@ router.post("/add", requireAdmin, async (req, res) => {
 });
 
 
-router.put("/update/:id", async (req, res) => {
+router.put("/update/:id",requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { model, brand, pricePerDay, available } = req.body;
-    const command = new UpdateCarCommand(id, model, brand, pricePerDay, available);
+    const { model, name, pricePerDay, available ,imageUrl} = req.body;
+    const command = new UpdateCarCommand(id, model, name, pricePerDay, available,imageUrl);
     const handler = new UpdateCarHandler();
     const updatedCar = await handler.execute(command);
     res.json({ success: true, car: updatedCar });

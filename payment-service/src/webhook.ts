@@ -1,6 +1,7 @@
 import express from "express";
 import Stripe from "stripe";
 import { publishPaymentSuccess } from "./publisher/publishPaymentSuccess";
+import { publishPaymentFailed } from "./publisher/publishPaymentFailure";
 
 const router = express.Router();
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -19,18 +20,30 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
       const session: any = event.data.object;
 
       const bookingId = session.metadata.bookingId;
-      const userId = session.metadata.userId;
+      // const userId = session.metadata.userId;
       const paymentId = session.payment_intent;
-      console.log("WEBHOOK METADATA:", session.metadata);
-
-      console.log("🎉 Payment Successful:", bookingId);
-
+      console.log()
+     
       await publishPaymentSuccess({
         bookingId,
         paymentId,
-        userId,
+        // userId,
         carId: session.metadata.carId,
         amount: session.amount_total / 100,
+      });
+    }
+     if (event.type === "payment_intent.payment_failed") {
+      const intent: any = event.data.object;
+
+      const bookingId = intent.metadata.bookingId;
+      // const userId = intent.metadata.userId;
+
+      console.log("❌ PAYMENT FAILED FOR:", bookingId);
+
+      await publishPaymentFailed({
+        bookingId,
+        // userId,
+        paymentId: intent.id,
       });
     }
 

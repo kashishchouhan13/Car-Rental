@@ -1,9 +1,10 @@
 export class UpdateCarCommand {
   constructor(
-    public id: string,
+    public _id: string,
     public model?: string,
-    public brand?: string,
+    public name?: string,
     public pricePerDay?: number,
-    public available?: boolean
+    public available?: boolean,
+    public imageUrl?:string[]
   ) {}
 }

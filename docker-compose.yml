@@ -84,3 +84,4 @@ services:
       RABBITMQ_URL: amqp://rabbitmq:5672
     depends_on:
       - rabbitmq
+    restart: always

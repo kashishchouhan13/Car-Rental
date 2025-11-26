@@ -11,20 +11,44 @@ const UpdateCarHandler_1 = require("../commands/updateCar/UpdateCarHandler");
 const DeleteCarCommand_1 = require("../commands/deleteCar/DeleteCarCommand");
 const DeleteCarHandler_1 = require("../commands/deleteCar/DeleteCarHandler");
 const adminMiddleware_1 = require("../middleware/adminMiddleware");
+//import { upload } from "../middleware/upload";
 const router = express_1.default.Router();
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+// Storage config
+const storage = multer_1.default.diskStorage({
+    destination: "uploads/",
+    filename: (req, file, cb) => {
+        const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, unique + path_1.default.extname(file.originalname));
+    },
+});
+const carImageUpload = (0, multer_1.default)({ storage });
+router.post("/upload-images", adminMiddleware_1.requireAdmin, carImageUpload.array("images", 5), (req, res) => {
+    const files = req.files;
+    if (!files || files.length === 0)
+        return res
+            .status(400)
+            .json({ success: false, message: "No files uploaded" });
+    const urls = files.map((file) => `/uploads/${file.filename}`);
+    return res.json({ success: true, urls });
+});
 router.post("/add", adminMiddleware_1.requireAdmin, async (req, res) => {
     try {
-        const { name, model, pricePerDay } = req.body;
-        const command = new AddCarCommand_1.AddCarCommand(name, model, pricePerDay);
+        const { name, model, pricePerDay, imageUrl } = req.body;
+        if (!Array.isArray(imageUrl)) {
+            return res.status(400).json({ success: false, message: "imageUrl must be an array" });
+        }
+        const command = new AddCarCommand_1.AddCarCommand(name, model, pricePerDay, imageUrl);
         const handler = new AddCarHandler_1.AddCarHandler();
         const car = await handler.execute(command, req.user);
-        res.status(201).json({ success: true, data: car });
+        return res.status(201).json({ success: true, data: car });
     }
     catch (err) {
-        res.status(400).json({ success: false, message: err.message });
+        return res.status(400).json({ success: false, message: err.message });
     }
 });
-router.put("/update/:id", async (req, res) => {
+router.put("/update/:id", adminMiddleware_1.requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const { model, brand, pricePerDay, available } = req.body;

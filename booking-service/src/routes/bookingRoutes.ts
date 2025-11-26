@@ -78,5 +78,13 @@ router.get("/user/:userId", async (req, res) => {
       .json({ success: false, message: err.message });
   }
 });
+router.get("/status/:id", async (req, res) => {
+  const booking = await Booking.findById(req.params.id);
+
+  if (!booking)
+    return res.status(404).json({ status: "not_found" });
+
+  return res.json({ status: booking.status });
+});
 
 export default router;
