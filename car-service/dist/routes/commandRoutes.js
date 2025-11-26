@@ -51,8 +51,8 @@ router.post("/add", adminMiddleware_1.requireAdmin, async (req, res) => {
 router.put("/update/:id", adminMiddleware_1.requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { model, brand, pricePerDay, available } = req.body;
-        const command = new UpdateCarCommand_1.UpdateCarCommand(id, model, brand, pricePerDay, available);
+        const { model, name, pricePerDay, available, imageUrl } = req.body;
+        const command = new UpdateCarCommand_1.UpdateCarCommand(id, model, name, pricePerDay, available, imageUrl);
         const handler = new UpdateCarHandler_1.UpdateCarHandler();
         const updatedCar = await handler.execute(command);
         res.json({ success: true, car: updatedCar });

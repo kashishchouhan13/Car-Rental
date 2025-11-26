@@ -10,6 +10,7 @@ const GetCarByIdQuery_1 = require("../queries/GetCarById/GetCarByIdQuery");
 const GetCarByIdHandler_1 = require("../queries/GetCarById/GetCarByIdHandler");
 const GetAvailbleCarsQuery_1 = require("../queries/GetAvailableCars.ts/GetAvailbleCarsQuery");
 const GetAvailableCarsHandler_1 = require("../queries/GetAvailableCars.ts/GetAvailableCarsHandler");
+const car_1 = require("../models/car");
 const router = express_1.default.Router();
 router.get("/all", async (req, res) => {
     try {
@@ -42,6 +43,28 @@ router.get("/:id", async (req, res) => {
     }
     catch (err) {
         res.status(404).json({ success: false, message: err.message });
+    }
+});
+router.get("/paginated", async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6;
+        const skip = (page - 1) * limit;
+        const [cars, total] = await Promise.all([
+            car_1.Car.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+            car_1.Car.countDocuments()
+        ]);
+        res.json({
+            success: true,
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+            data: cars,
+        });
+    }
+    catch (err) {
+        res.status(500).json({ success: false });
     }
 });
 exports.default = router;
