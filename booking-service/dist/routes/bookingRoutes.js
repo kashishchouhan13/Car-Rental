@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
         });
     }
     catch (err) {
-        console.log("❌ Booking+Payment Error:", ((_a = err.response) === null || _a === void 0 ? void 0 : _a.data) || err.message);
+        console.log(" Booking+Payment Error:", ((_a = err.response) === null || _a === void 0 ? void 0 : _a.data) || err.message);
         return res.status(500).json({
             success: false,
             message: err.message
@@ -46,6 +46,22 @@ router.get("/all", async (req, res) => {
     catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
+});
+router.get("/paginated", async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const [bookings, total] = await Promise.all([
+        Booking_1.Booking.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+        Booking_1.Booking.countDocuments(),
+    ]);
+    res.json({
+        success: true,
+        data: bookings,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+    });
 });
 router.get("/user/:userId", async (req, res) => {
     try {

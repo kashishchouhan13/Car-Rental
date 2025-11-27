@@ -62,6 +62,26 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const getPaginatedUser =async(req:Request, res: Response)=>{
+   const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+
+  const skip = (page - 1) * limit;
+
+  const [users, total] = await Promise.all([
+    User.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+    User.countDocuments(),
+  ]);
+
+  res.json({
+    success: true,
+    users,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  });
+}
+
 export const getUserById = async(req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id).select("name email");

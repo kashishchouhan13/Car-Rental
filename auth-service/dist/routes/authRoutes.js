@@ -9,6 +9,7 @@ const requireAdmin_1 = require("../middleware/requireAdmin");
 const router = express_1.default.Router();
 router.post("/register", authController_1.register);
 router.post("/login", authController_1.login);
+router.get("/paginated", authController_1.getPaginatedUser);
 router.get("/users", requireAdmin_1.requireAdmin, authController_1.getAllUsers);
 router.get("/user/:id", authController_1.getUserById);
 router.put("/update-role/:id", requireAdmin_1.requireAdmin, authController_1.updateUserRole);

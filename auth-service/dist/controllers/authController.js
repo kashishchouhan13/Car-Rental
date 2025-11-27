@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logoutUser = exports.verifyToken = exports.updateUserRole = exports.getUserById = exports.getAllUsers = exports.login = exports.register = void 0;
+exports.logoutUser = exports.verifyToken = exports.updateUserRole = exports.getUserById = exports.getPaginatedUser = exports.getAllUsers = exports.login = exports.register = void 0;
 const RegisterUserCommand_1 = require("../commands/RegisterUserCommand");
 const RegisterUserHandler_1 = require("../commands/handlers/RegisterUserHandler");
 const LoginUserQery_1 = require("../queries/LoginUserQery");
@@ -11,9 +11,7 @@ const LoginUserHandler_1 = require("../queries/handlers/LoginUserHandler");
 const User_1 = require("../models/User");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const redis_1 = require("../config/redis");
-// ------------------------
 // REGISTER
-// ------------------------
 const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -27,9 +25,7 @@ const register = async (req, res) => {
     }
 };
 exports.register = register;
-// ------------------------
 // LOGIN
-// ------------------------
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -49,9 +45,7 @@ const login = async (req, res) => {
     }
 };
 exports.login = login;
-// ------------------------
 // GET ALL USERS (ADMIN)
-// ------------------------
 const getAllUsers = async (req, res) => {
     try {
         const users = await User_1.User.find().select("-password");
@@ -62,6 +56,23 @@ const getAllUsers = async (req, res) => {
     }
 };
 exports.getAllUsers = getAllUsers;
+const getPaginatedUser = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const [users, total] = await Promise.all([
+        User_1.User.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+        User_1.User.countDocuments(),
+    ]);
+    res.json({
+        success: true,
+        users,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+    });
+};
+exports.getPaginatedUser = getPaginatedUser;
 const getUserById = async (req, res) => {
     try {
         const user = await User_1.User.findById(req.params.id).select("name email");
@@ -74,9 +85,7 @@ const getUserById = async (req, res) => {
     }
 };
 exports.getUserById = getUserById;
-// ------------------------
 // UPDATE USER ROLE (ADMIN)
-// ------------------------
 const updateUserRole = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -102,9 +111,7 @@ const updateUserRole = async (req, res) => {
     }
 };
 exports.updateUserRole = updateUserRole;
-// ------------------------
 // VERIFY TOKEN
-// ------------------------
 const verifyToken = async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader)
@@ -126,9 +133,7 @@ const verifyToken = async (req, res) => {
     }
 };
 exports.verifyToken = verifyToken;
-// ------------------------
 // LOGOUT
-// ------------------------
 const logoutUser = async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader)
