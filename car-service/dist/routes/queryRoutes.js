@@ -34,26 +34,15 @@ router.get("/available", async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
-router.get("/:id", async (req, res) => {
-    try {
-        const query = new GetCarByIdQuery_1.GetCarByIdQuery(req.params.id);
-        const handler = new GetCarByIdHandler_1.GetCarByIdHandler();
-        const car = await handler.execute(query);
-        res.json({ success: true, car });
-    }
-    catch (err) {
-        res.status(404).json({ success: false, message: err.message });
-    }
-});
 router.get("/paginated", async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 6;
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        const [cars, total] = await Promise.all([
-            car_1.Car.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
-            car_1.Car.countDocuments()
-        ]);
+        const cars = await car_1.Car.find({ available: true }) // 🔥 FILTER ADDED
+            .skip(skip)
+            .limit(limit);
+        const total = await car_1.Car.countDocuments({ available: true });
         res.json({
             success: true,
             page,
@@ -65,6 +54,17 @@ router.get("/paginated", async (req, res) => {
     }
     catch (err) {
         res.status(500).json({ success: false });
+    }
+});
+router.get("/:id", async (req, res) => {
+    try {
+        const query = new GetCarByIdQuery_1.GetCarByIdQuery(req.params.id);
+        const handler = new GetCarByIdHandler_1.GetCarByIdHandler();
+        const car = await handler.execute(query);
+        res.json({ success: true, car });
+    }
+    catch (err) {
+        res.status(404).json({ success: false, message: err.message });
     }
 });
 exports.default = router;

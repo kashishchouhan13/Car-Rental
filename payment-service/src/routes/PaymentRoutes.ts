@@ -4,9 +4,7 @@ import Stripe from "stripe";
 const router = express.Router();
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-// ----------------------
 // CREATE CHECKOUT SESSION
-// ----------------------
 router.post("/checkout", async (req, res) => {
   try {
     const { amount, bookingId,carId} = req.body;
@@ -47,8 +45,8 @@ router.post("/checkout", async (req, res) => {
         carId,
       },
        payment_intent_data: {
-    setup_future_usage: "off_session",
-    metadata: {
+      setup_future_usage: "off_session",
+      metadata: {
       bookingId,
       carId,
     },

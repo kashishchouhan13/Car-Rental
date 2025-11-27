@@ -24,7 +24,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
       return res.status(403).json({ message: "Admin access only" });
     }
 
-    (req as any).user = userData; // attach user
+    (req as any).user = userData; 
     next();
 
   } catch (err: any) {

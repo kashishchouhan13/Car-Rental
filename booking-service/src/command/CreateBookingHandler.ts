@@ -36,8 +36,8 @@
 //     };
 //   }
 // }
-
 import mongoose from "mongoose";
+import axios from "axios";
 import { CreateBookingCommand } from "../command/CreateBookingCommand";
 import { redisClient } from "../redis/client";
 import { publishCarBooked } from "../events/publishCarBooked";
@@ -47,17 +47,50 @@ export class CreateBookingHandler {
   async execute(command: CreateBookingCommand) {
     const { userId, carId, startDate, endDate, amount } = command;
 
-    const carStr = await redisClient.hget("availableCars", carId);
-    if (!carStr) throw new Error("Car not found");
+    // 1️⃣ Try Redis first
+    let carStr = await redisClient.hget("availableCars", carId);
+
+    // 2️⃣ Fallback if Redis doesn't have the car
+  // 2️⃣ Fallback if Redis doesn't have the car
+if (!carStr) {
+  console.log("⚠️ Car not found in Redis → Fetching from Car-Service");
+
+  try {
+    interface CarByIdResponse {
+      success: boolean;
+      car: any;
+    }
+
+    const carRes = await axios.get<CarByIdResponse>(
+      `http://localhost:5002/api/car/query/${carId}`
+    );
+
+    if (!carRes.data.success || !carRes.data.car) {
+      throw new Error("Car not found");
+    }
+
+    carStr = JSON.stringify(carRes.data.car);
+
+    // Restore to Redis
+    await redisClient.hset("availableCars", carId, carStr);
+
+    console.log("✅ Car cached in Redis");
+  } catch {
+    throw new Error("Car not found");
+  }
+}
+
 
     const car = JSON.parse(carStr);
+
+    // 3️⃣ Availability check
     if (!car.available) throw new Error("Car already booked");
 
-    // ⭐ FIX: Convert IDs to ObjectId
+    // 4️⃣ Convert IDs to ObjectId
     const mongoUserId = new mongoose.Types.ObjectId(userId);
     const mongoCarId = new mongoose.Types.ObjectId(carId);
 
-    // ⭐ Save in MongoDB with ObjectId refs
+    // 5️⃣ Save booking in Mongo
     const booking = await Booking.create({
       userId: mongoUserId,
       carId: mongoCarId,
@@ -68,7 +101,7 @@ export class CreateBookingHandler {
       createdAt: new Date(),
     });
 
-    // Publish event
+    // 6️⃣ Publish event
     await publishCarBooked({
       bookingId: booking._id,
       userId,
@@ -76,9 +109,9 @@ export class CreateBookingHandler {
       amount,
     });
 
-return {
-  success: true,
-  booking: booking.toObject(),
-};
+    return {
+      success: true,
+      booking: booking.toObject(),
+    };
   }
 }

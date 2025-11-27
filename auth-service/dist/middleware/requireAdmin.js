@@ -23,7 +23,7 @@ const requireAdmin = async (req, res, next) => {
         if (userData.role !== "admin") {
             return res.status(403).json({ message: "Admin access only" });
         }
-        req.user = userData; // attach user
+        req.user = userData;
         next();
     }
     catch (err) {

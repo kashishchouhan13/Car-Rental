@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CarCreatedEvent = void 0;
 class CarCreatedEvent {
-    constructor(id, name, model, pricePerDay, available, imageUrl) {
-        this.id = id;
+    constructor(_id, name, model, pricePerDay, available, imageUrl) {
+        this._id = _id;
         this.name = name;
         this.model = model;
         this.pricePerDay = pricePerDay;

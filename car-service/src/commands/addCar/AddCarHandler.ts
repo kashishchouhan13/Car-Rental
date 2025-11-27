@@ -2,6 +2,7 @@ import { AddCarCommand } from "./AddCarCommand";
 import { Car } from "../../models/car";
 import { CarCreatedEvent } from "../../events/CarCreatedEvent";
 import { publishEvent } from "../../rabbitmq/producer";
+import { redisClient } from "../../redis";
 
  interface User {
   id: string;
@@ -21,6 +22,19 @@ export class AddCarHandler {
     });
 
     await car.save();
+
+      await redisClient.hset(
+      "availableCars",
+      car._id.toString(),
+      JSON.stringify({
+        _id: car._id.toString(),
+        name: car.name,
+        model: car.model,
+        pricePerDay: car.pricePerDay,
+        available: car.available,
+        imageUrl: car.imageUrl
+      })
+    );
 
     const event = new CarCreatedEvent(
       car._id.toString(),

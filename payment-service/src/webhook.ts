@@ -20,14 +20,12 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
       const session: any = event.data.object;
 
       const bookingId = session.metadata.bookingId;
-      // const userId = session.metadata.userId;
       const paymentId = session.payment_intent;
       console.log()
      
       await publishPaymentSuccess({
         bookingId,
         paymentId,
-        // userId,
         carId: session.metadata.carId,
         amount: session.amount_total / 100,
       });
@@ -36,20 +34,18 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
       const intent: any = event.data.object;
 
       const bookingId = intent.metadata.bookingId;
-      // const userId = intent.metadata.userId;
 
-      console.log("❌ PAYMENT FAILED FOR:", bookingId);
+      console.log(" PAYMENT FAILED FOR:", bookingId);
 
       await publishPaymentFailed({
         bookingId,
-        // userId,
         paymentId: intent.id,
       });
     }
 
     res.json({ received: true });
   } catch (err: any) {
-    console.error("⚠️ Webhook Error:", err.message);
+    console.error(" Webhook Error:", err.message);
     res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });

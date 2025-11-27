@@ -1,6 +1,6 @@
 export class CarCreatedEvent {
   constructor(
-    public id: string,
+    public _id: string,
     public name: string,
     public model: string,
     public pricePerDay: number,

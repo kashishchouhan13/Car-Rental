@@ -10,16 +10,13 @@ const app = express();
 
 // important: webhook must use raw body
 app.use(
-  "/stripe/webhook",
+  "/api/pay/webhook",
   express.raw({ type: "application/json" }),
   webhookRoute
 );
 
-// Normal JSON parser for other routes
 app.use(express.json());
 app.use(cors());
-
-// REST API
 app.use("/api/pay", paymentRoutes);
 
 app.listen(5004, () => console.log("Payment Service running on 5004"));

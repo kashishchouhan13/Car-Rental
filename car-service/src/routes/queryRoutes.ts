@@ -33,15 +33,16 @@ router.get("/available", async (req, res) => {
 });
 router.get("/paginated", async (req, res) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 6;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
     const skip = (page - 1) * limit;
 
-    const [cars, total] = await Promise.all([
-      Car.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
-      Car.countDocuments()
-    ]);
+    const cars = await Car.find({ available: true })  
+                         .skip(skip)
+                         .limit(limit);
+
+    const total = await Car.countDocuments({ available: true });
 
     res.json({
       success: true,
@@ -51,11 +52,11 @@ router.get("/paginated", async (req, res) => {
       totalPages: Math.ceil(total / limit),
       data: cars,
     });
-
   } catch (err) {
     res.status(500).json({ success: false});
   }
 });
+
 
 router.get("/:id", async (req, res) => {
   try {
