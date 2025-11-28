@@ -50,8 +50,6 @@ export class CreateBookingHandler {
     // 1️⃣ Try Redis first
     let carStr = await redisClient.hget("availableCars", carId);
 
-    // 2️⃣ Fallback if Redis doesn't have the car
-  // 2️⃣ Fallback if Redis doesn't have the car
 if (!carStr) {
   console.log("⚠️ Car not found in Redis → Fetching from Car-Service");
 
